@@ -1,0 +1,24 @@
+- name: setup Mysql on hosts in private subnets
+  become: yes
+  hosts: all
+  tasks:
+    - name: Installing Mysql  and dependencies
+      package:
+       name: "{{item}}"
+       state: latest
+       update_cache: yes
+      loop:
+       - mysql-server
+       - mysql-client 
+       - python3-mysqldb
+       - libmysqlclient-dev
+      become: yes
+    - name: start and enable mysql service
+      service:
+        name: mysql
+        state: started
+        enabled: yes
+    - name: Create database
+      mysql_db: name=my_db state=present
+    - name: Create database user
+      mysql_user: name=my_user password=my_password priv=my_db.*:ALL state=present
